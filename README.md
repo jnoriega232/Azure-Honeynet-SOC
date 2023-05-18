@@ -1,40 +1,73 @@
-# Building a SOC + Honeynet in Azure (Live Traffic)
+# Building a SOC + Honeynet in Azure (Live Traffic): Replicating Authentic Cyber Attacks
 ![Cloud Honeynet / SOC](https://i.imgur.com/6MPAH4R.png)
 
 ## Introduction
+I am excited to introduce my latest endeavor, a project dedicated to constructing a honeynet within the Azure framework, aiming to replicate genuine cyber attacks. This undertaking serves as a testament to my proficiencies in Azure security, incident response, and fortifying the system environment.
 
-In this project, I build a mini honeynet in Azure and ingest log sources from various resources into a Log Analytics workspace, which is then used by Microsoft Sentinel to build attack maps, trigger alerts, and create incidents. I measured some security metrics in the insecure environment for 24 hours, apply some security controls to harden the environment, measure metrics for another 24 hours, then show the results below. The metrics we will show are:
+## Objectives
+The primary aim of this project is to establish a honeynet enabling the analysis of real-time cyberattacks, conducting incident response investigations, and scrutinizing event alerts. This endeavor seeks to comprehend the intentions, tactics, techniques, and procedures employed by attackers. Additionally, the secondary objective involves transforming an insecure environment into a secure one through the reconfiguration of the firewall, NSG implementation, utilization of Azure Private Links, and adherence to regulatory compliance standards such as NIST 800-53 and Microsoft Defender for Cloud recommendations.
 
-- SecurityEvent (Windows Event Logs)
-- Syslog (Linux Event Logs)
-- SecurityAlert (Log Analytics Alerts Triggered)
-- SecurityIncident (Incidents created by Sentinel)
-- AzureNetworkAnalytics_CL (Malicious Flows allowed into our honeynet)
+## Technologies, Regulations, and Azure Components Employed:
+- Utilization of Azure Virtual Network (VNet)
+- Implementation of Azure Network Security Group (NSG)
+- Deployment of Azure Virtual Machines (2x Windows, 1x Linux)
+- Creation of a Log Analytics Workspace with Kusto Query Language (KQL) Queries
+- Adoption of Azure Key Vault for Secure Secrets Management
+- Establishment of an Azure Storage Account for Data Storage
+- Integration of Microsoft Sentinel for Security Information and Event Management (SIEM)
+- Utilization of Microsoft Defender for Cloud to Protect Cloud Resources
+- Incorporation of Windows Remote Desktop for Remote Access
+- Utilization of Command Line Interface (CLI) for System Management
+- Utilization of PowerShell for Automation and Configuration Management
+- Adherence to NIST SP 800-53 Revision 4 for Security Controls
+- Implementation of NIST SP 800-61 Revision 2 for Incident Handling Guidance
+
+## Process
+- <b>*Establishing the honeynet*</b>: To simulate an insecure environment, I commenced by deploying multiple vulnerable virtual machines within Azure.
+
+- <b>*Monitoring and analysis*</b>: I configured Azure to gather log data from various resources and consolidate them in a log analytics workspace. Leveraging Microsoft Sentinel, I constructed attack maps, triggered alerts, and generated incidents based on the acquired data.
+
+- <b>*Measuring security metrics*</b>: Throughout a 24-hour period, I diligently monitored the environment, documenting critical security metrics while it remained in an insecure state. This provided a benchmark for comparison against the metrics observed after implementing remedial measures.
+
+- <b>*Incident response and remediation*</b>: Upon addressing the identified incidents and vulnerabilities, I embarked on the process of fortifying the environment. This involved implementing security best practices and following Azure-specific recommendations.
+
+- <b>*Post-remediation analysis*</b>: To evaluate the effectiveness of the implemented measures, I conducted another 24-hour observation of the environment. By comparing the resulting security metrics with the initial baseline, I gauged the impact of the remediation efforts.
 
 ## Architecture Before Hardening / Security Controls
 ![Architecture Diagram](https://i.imgur.com/uzwHvLp.png)
 
+<b>Prior to implementing hardening measures and security controls:</b>
+
+- During the initial phase of the project ("BEFORE" stage), all resources were deployed with deliberate exposure to the public internet. This deliberate lack of security was intended to entice potential cyber attackers and study their methodologies. The Virtual Machines had both their Network Security Groups (NSGs) and built-in firewalls configured to allow unrestricted access from any source. Furthermore, all other resources, including storage accounts and databases, were deployed with publicly accessible endpoints, without the utilization of Private Endpoints for enhanced security.
+
 ## Architecture After Hardening / Security Controls
 ![Architecture Diagram](https://i.imgur.com/EEuwLHJ.png)
 
-The architecture of the mini honeynet in Azure consists of the following components:
+<b>In the "AFTER" stage, I implemented a series of measures to fortify the environment's security and enhance its overall posture. The key improvements implemented include:</b>
 
-- Virtual Network (VNet)
-- Network Security Group (NSG)
-- Virtual Machines (2 windows, 1 linux)
-- Log Analytics Workspace
-- Azure Key Vault
-- Azure Storage Account
-- Microsoft Sentinel
+- <b>Strengthening Network Security Groups (NSGs)</b>: I reinforced the NSGs by implementing a restrictive policy that blocked all inbound and outbound traffic, with the exception of my own public IP address. This ensured that only authorized traffic from a trusted source was granted access to the virtual machines.
 
-For the "BEFORE" metrics, all resources were originally deployed, exposed to the internet. The Virtual Machines had both their Network Security Groups and built-in firewalls wide open, and all other resources are deployed with public endpoints visible to the Internet; aka, no use for Private Endpoints.
+- <b>Configuring Built-in Firewalls</b>: I fine-tuned the configurations of the built-in firewalls on the virtual machines to impose restrictions on access, safeguarding the resources against unauthorized connections. By customizing the firewall rules based on the specific requirements of each virtual machine, I minimized the potential attack surface.
 
-For the "AFTER" metrics, Network Security Groups were hardened by blocking ALL traffic with the exception of my admin workstation, and all other resources were protected by their built-in firewalls as well as Private Endpoint
+- <b>Implementing Private Endpoints</b>: I bolstered the security of other Azure resources by replacing their public endpoints with Private Endpoints. This strategic shift restricted access to sensitive resources, such as storage accounts and databases, to within the virtual network, eliminating exposure to the public internet. This approach provided an additional layer of protection, guarding against unauthorized access and potential attacks.
+
+By conducting a comparative analysis of the security metrics before and after implementing these hardening measures and security controls, I effectively demonstrated the tangible enhancements made to the overall security posture of the Azure environment.
 
 ## Attack Maps Before Hardening / Security Controls
+
+
+- <b>The depicted attack map vividly illustrates the ramifications of maintaining an open Network Security Group (NSG), enabling unhindered passage of malicious traffic. This visual representation serves as a powerful reminder of the criticality of deploying robust security measures, including stringent NSG rule restrictions, to thwart unauthorized access and mitigate potential threats effectively.</b>
 ![NSG Allowed Inbound Malicious Flows](https://i.imgur.com/A1sRZgz.png)<br>
+
+ - <b>The showcased attack map brings attention to the multitude of syslog authentication failures encountered by the deployed Linux server, signifying unauthorized access attempts originating externally. This serves as a powerful reminder of the utmost significance in fortifying Linux servers with robust authentication mechanisms and diligently monitoring system logs for indications of intrusion endeavors.</b>
 ![Linux Syslog Auth Failures](https://i.imgur.com/2XLw6g5.png)<br>
+
+- <b>The presented attack map highlights a significant number of RDP and SMB failures, revealing the persistent efforts of potential attackers to exploit these protocols. This visualization effectively underscores the imperative nature of securing remote access and file sharing services, aiming to safeguard against unauthorized access and mitigate potential cyber threats.</b>
 ![Windows RDP/SMB Auth Failures](https://i.imgur.com/vqAwad9.png)<br>
+
+## Attack Maps After Hardening / Security Controls
+
+```All map queries actually returned no results due to no instances of malicious activity for the 24 hour period after hardening.```
 
 ## Metrics Before Hardening / Security Controls
 
@@ -44,15 +77,11 @@ Stop Time 2023-05-05 21:55:50
 
 | Metric                   | Count
 | ------------------------ | -----
-| SecurityEvent            | 23146
-| Syslog                   | 2123
-| SecurityAlert            | 10
-| SecurityIncident         | 267
-| AzureNetworkAnalytics_CL | 865
-
-## Attack Maps Before Hardening / Security Controls
-
-```All map queries actually returned no results due to no instances of malicious activity for the 24 hour period after hardening.```
+| SecurityEvent (Windows VM)           | 23146
+| Syslog (Linux VM)                  | 2123
+| SecurityAlert (Microsoft Defender for Cloud)           | 10
+| SecurityIncident (Sentinel Incidents)        | 267
+| NSG Inbound Malicious Flows Allowed | 865
 
 ## Metrics After Hardening / Security Controls
 
@@ -62,11 +91,11 @@ Stop Time	2023-05-11 17:38:04
 
 | Metric                   | Count
 | ------------------------ | -----
-| SecurityEvent            | 17718
-| Syslog                   | 24
-| SecurityAlert            | 0
-| SecurityIncident         | 0
-| AzureNetworkAnalytics_CL | 0
+| SecurityEvent (Windows VM)           | 17718
+| Syslog (Linux VM)                  | 24
+| SecurityAlert (Microsoft Defender for Cloud)           | 0
+| SecurityIncident (Sentinel Incidents)        | 0
+| NSG Inbound Malicious Flows Allowed | 0
 
 ## Conclusion
 
